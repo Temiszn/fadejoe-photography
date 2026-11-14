@@ -46,12 +46,10 @@ window.addEventListener("load", () => {
 
 // Three-photo cinematic hero carousel
 const heroSlides = [
-  { src: "./assets/images/pic1.JPG", label: "BEAUTY / EDITORIAL" },
+  
   { src: "./assets/images/pic2.jpg", label: "PORTRAIT / CHARACTER" },
-  { src: "./assets/images/pic13.png", label: "WEDDING / CONNECTION" },
-  { src: "./assets/images/pic9.JPG", label: "LIFESTYLE / STORY" },
+  { src: "./assets/images/pic10.JPG", label: "CORPORATE / FASHION" },
   { src: "./assets/images/pic5.JPG", label: "BEAUTY / EXPRESSION" },
-  { src: "./assets/images/pic10.JPG", label: "FASHION / MOVEMENT" }
 ];
 
 const frames = [
@@ -92,9 +90,7 @@ const renderFrame = (frame, index, position) => {
 };
 
 // Initial arrangement: previous, active, upcoming
-renderFrame(frames[0], 1, "frame-one");
-renderFrame(frames[1], 2, "frame-main");
-renderFrame(frames[2], 3, "frame-two");
+
 
 const nextSlide = () => {
   if (isAnimating || reduceMotion.matches || document.hidden) return;
@@ -217,22 +213,86 @@ if (interlude && interludeImage) {
 }
 
   // Gallery filters.
-  const filterButtons = $$(".filter-btn");
-  const galleryCards = $$(".gallery-card");
-  const galleryCount = $("#galleryCount");
-  filterButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      const filter = button.dataset.filter;
-      filterButtons.forEach(item => item.classList.toggle("is-active", item === button));
-      let visible = 0;
-      galleryCards.forEach(card => {
-        const show = filter === "all" || card.dataset.category === filter;
-        card.classList.toggle("is-hidden", !show);
-        if (show) visible++;
-      });
-      if (galleryCount) galleryCount.textContent = `${String(visible).padStart(2, "0")} FRAMES`;
-    });
+
+// Gallery filters and Show More.
+const filterButtons = $$(".filter-btn");
+const galleryCards = $$(".gallery-card");
+const galleryCount = $("#galleryCount");
+const galleryToggle = $("#galleryToggle");
+
+const initialGalleryLimit = 6;
+let activeGalleryFilter = "all";
+let galleryExpanded = false;
+
+function updateGallery() {
+  const matchingCards = galleryCards.filter(card =>
+    activeGalleryFilter === "all" ||
+    card.dataset.category === activeGalleryFilter
+  );
+
+  matchingCards.forEach((card, index) => {
+    const showCard =
+      activeGalleryFilter !== "all" ||
+      galleryExpanded ||
+      index < initialGalleryLimit;
+
+    card.classList.toggle("is-hidden", !showCard);
   });
+
+  galleryCards.forEach(card => {
+    if (!matchingCards.includes(card)) {
+      card.classList.add("is-hidden");
+    }
+  });
+
+  if (galleryCount) {
+    galleryCount.textContent =
+      `${String(matchingCards.length).padStart(2, "0")} FRAMES`;
+  }
+
+  if (galleryToggle) {
+    const showToggle =
+      activeGalleryFilter === "all" &&
+      matchingCards.length > initialGalleryLimit;
+
+    galleryToggle.style.display = showToggle ? "inline-flex" : "none";
+    galleryToggle.textContent = galleryExpanded
+      ? "SHOW LESS −"
+      : "SHOW MORE +";
+  }
+}
+
+filterButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    activeGalleryFilter = button.dataset.filter;
+    galleryExpanded = false;
+
+    filterButtons.forEach(item => {
+      item.classList.toggle("is-active", item === button);
+    });
+
+    updateGallery();
+  });
+});
+
+if (galleryToggle) {
+  galleryToggle.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    galleryExpanded = !galleryExpanded;
+    updateGallery();
+
+    if (!galleryExpanded) {
+      document.querySelector("#work").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+  });
+}
+
+updateGallery();
+
 
   // Accessible gallery lightbox.
   const lightbox = $("#lightbox");
@@ -289,3 +349,16 @@ if (interlude && interludeImage) {
     if (event.key === "ArrowRight") moveLightbox(1);
   });
 })();
+const storySlides = document.querySelectorAll(".story-slide");
+
+if (storySlides.length > 1) {
+    let currentStorySlide = 0;
+
+    setInterval(() => {
+        storySlides[currentStorySlide].classList.remove("active");
+
+        currentStorySlide = (currentStorySlide + 1) % storySlides.length;
+
+        storySlides[currentStorySlide].classList.add("active");
+    }, 4000);
+}
