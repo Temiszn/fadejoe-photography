@@ -540,15 +540,8 @@ body.locked{overflow:hidden}a{color:inherit;text-decoration:none}button{font:inh
 }
 
 .interlude::after {
-    content: "✳";
-    position: absolute;
-    right: 12%;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: clamp(180px, 25vw, 340px);
-    font-weight: 200;
-    color: rgba(153, 145, 132, .13);
-    z-index: -1;
+    content: none;
+    display: none;
 }
 
 .interlude-content {
